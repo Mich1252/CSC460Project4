@@ -1,0 +1,50 @@
+drop table Transaction
+drop table Equipment
+drop table Borrowed
+drop table Member
+drop table Package
+drop table Memberships
+drop table Trainer
+drop table Course
+commit
+create table Transaction (        MemberID integer,        Amount float,        TransactionDate char(10),        TransactionType varchar2(20),        Paid char(1),        primary key (MemberID)    )
+commit
+create table Equipment (        EquipmentID integer,        EquipmentName varchar2(20),        Available integer,        MaxQuantity integer,        primary key (EquipmentID)    )
+commit
+create table Borrowed (        MemberID integer,        EquipmentID integer,        QuantityBorrowed integer,        CheckOutTime char(10),        ReturnTime char(10),        isLost char(1),        primary key (MemberID, EquipmentID, CheckOutTime)    )
+commit
+create table Member (        MemberID integer,        Name varchar2(50),        PhoneNum char(12),        AccountBalance float,        MembershipID integer,        AmountSpent float,        primary key (MemberID)    )
+commit
+create table Package (        PackageID integer,        Name varchar2(50),        Price float,        primary key (PackageID)    )
+commit
+create table Memberships (        MembershipID integer,        Name varchar2(50),        MinSpend float,        Discount integer,        primary key (MembershipID)    )
+commit
+create table Trainer (        TrainerID integer,        Name varchar2(50),        PhoneNum char(12),        primary key (TrainerID)    )
+commit
+create table Course (        CourseID integer,        Name varchar2(20),        TrainerID integer,        StartTime integer,        StartDate char(10),        EndDate char(10),        Duration integer,        MaxEnrolled integer,        CurrentEnrolled integer,        primary key (CourseID)    )
+commit
+delete from Transaction
+insert into Transaction values (0, 300, '2023-11-30', 'Recharge', 'N')
+commit
+delete from Equipment
+insert into Equipment values (0, 'Basketball', 30, 31)
+commit
+delete from Borrowed
+insert into Borrowed values (0, 0, 1, '2023-11-29', '', 'N')
+commit
+delete from Member
+insert into Member values (0, 'JhihYang', 000-000-0000, 1234.5, 0, 20)
+commit
+delete from Package
+insert into Package values (0, 'Swimming Bundle', 99.9)
+commit
+delete from Memberships
+insert into Memberships values (0, 'Diamond', 500, 10)
+insert into Memberships values (1, 'Gold', 1000, 20)
+commit
+delete from Trainer
+insert into Trainer values (0, 'Dr. McCann', 111-111-1111)
+commit
+delete from Course
+insert into Course values (0, 'Swim 101', 0, 1400, '2023-08-23', '2023-12-02', 60, 50, 1)
+commit
