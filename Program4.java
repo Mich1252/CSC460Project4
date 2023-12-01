@@ -14,8 +14,7 @@
  * export CLASSPATH=/usr/lib/oracle/19.8/client64/lib/ojdbc8.jar:${CLASSPATH}
  *
  * To run the program:
- * "javac Program4.java"
- * "java Program4"
+ * "java Program4.java"
  */
 
 import java.io.*;
@@ -92,27 +91,126 @@ public class Program4 {
         return true;
     }
 
-    private static void addMember(Connection dbconn) {}
+    private static void addMember(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in addMember.");
+            System.out.println(e);
+        };
+    }
 
-    private static void deleteMember(Connection dbconn) {}
+    private static void deleteMember(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in deleteMember.");
+            System.out.println(e);
+        };
+    }
 
-    private static void addCourse(Connection dbconn) {}
+    private static void addCourse(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in addCourse.");
+            System.out.println(e);
+        };
+    }
 
-    private static void deleteCourse(Connection dbconn) {}
+    private static void deleteCourse(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in deleteCourse.");
+            System.out.println(e);
+        };
+    }
 
-    private static void addPackage(Connection dbconn) {}
+    private static void addPackage(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in addPackage.");
+            System.out.println(e);
+        };
+    }
 
-    private static void deletePackage(Connection dbconn) {}
+    private static void deletePackage(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in deletePackage.");
+            System.out.println(e);
+        };
+    }
 
-    private static void updatePackage(Connection dbconn) {}
+    private static void updatePackage(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in updatePackage.");
+            System.out.println(e);
+        };
+    }
 
-    private static void query1(Connection dbconn) {}
+    private static void query1(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in query1.");
+            System.out.println(e);
+        };
+    }
 
-    private static void query2(Connection dbconn) {}
+    private static void query2(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in query2.");
+            System.out.println(e);
+        };
+    }
 
-    private static void query3(Connection dbconn) {}
+    private static void query3(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in query3.");
+            System.out.println(e);
+        };
+    }
 
-    private static void query4(Connection dbconn) {}
+    private static void query4(Connection dbconn) {
+        try {
+            // TODO
+            Statement stmt = dbconn.createStatement();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error in query4.");
+            System.out.println(e);
+        };
+    }
 
     /* Name: estabConn
      * Purpose: Establish a connection with the database using JDBC.
