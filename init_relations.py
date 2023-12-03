@@ -68,7 +68,7 @@ def createTransactionTable():
         TransactionDate Date,
         TransactionType varchar2(20),
         Paid char(1),
-        primary key (TransactionID, MemberID)
+        primary key (TransactionID)
     )""")
     retval.append("commit")
     return retval
@@ -80,7 +80,7 @@ def createEquipmentTable():
         EquipmentName varchar2(20),
         Available integer,
         MaxQuantity integer,
-        primary key (EquipmentID, EquipmentName)
+        primary key (EquipmentID)
     )""")
     retval.append("commit")
     return retval
@@ -108,7 +108,7 @@ def createMemberTable():
         AccountBalance float,
         MembershipID integer,
         AmountSpent float,
-        primary key (MemberID, PhoneNum)
+        primary key (MemberID)
     )""")
     retval.append("commit")
     return retval
@@ -129,7 +129,7 @@ def createPackageTable():
         PackageID integer,
         Name varchar2(50),
         Price float,
-        primary key (PackageID, Name)
+        primary key (PackageID)
     )""")
     retval.append("commit")
     return retval
@@ -144,16 +144,6 @@ def createPackageCoursesTable():
     retval.append("commit")
     return retval
 
-def createMembershipsTable():
-    retval = []
-    retval.append("""create table Memberships (
-        MembershipID integer,
-        MemberID integer,
-        primary key (MembershipID, MemberID)
-    )""")
-    retval.append("commit")
-    return retval
-
 def createMembershipInfoTable():
     retval = []
     retval.append("""create table Memberships (
@@ -161,7 +151,7 @@ def createMembershipInfoTable():
         Name varchar2(50),
         MinSpend float,
         Discount integer,
-        primary key (MembershipID, Name)
+        primary key (MembershipID)
     )""")
     retval.append("commit")
     return retval
@@ -190,7 +180,7 @@ def createCourseTable():
         MaxEnrolled integer,
         CurrentEnrolled integer,
         DaysOfTheWeek varchar2(14)
-        primary key (CourseID, Name)
+        primary key (CourseID)
     )""")
     retval.append("commit")
     return retval
@@ -256,6 +246,7 @@ def fillMemberTable():
     retval.append("insert into Member values (8, 'Olivia Davis', '999-333-2222', 1200.75, 2, 35.5)")
     retval.append("insert into Member values (9, 'Daniel Lee', '111-444-6666', 600.25, 1, 25.0)")
     retval.append("insert into Member values (10, 'Sophia Nguyen', '888-222-3333', 3000.0, 0, 90.75)")
+    retval.append("insert into Member values (11, 'Dr. McCann', '111-111-1111', 3002.0, 1, 550.90)")
     retval.append("commit")
     return retval
 
@@ -275,15 +266,6 @@ def fillPackageTable():
     retval.append("commit")
     return retval
 
-def fillMembershipsTable():
-    retval = []
-    retval.append("delete from Memberships")  # delete all tuples
-    retval.append("insert into Memberships values (0, 'Basic', 0, 0)")
-    retval.append("insert into Memberships values (1, 'Diamond', 500, 10)")
-    retval.append("insert into Memberships values (2, 'Gold', 1000, 20)")
-    retval.append("commit")
-    return retval
-
 def fillTrainerTable():
     retval = []
     retval.append("delete from Trainer")  # delete all tuples
@@ -295,10 +277,10 @@ def fillTrainerTable():
 def fillCourseTable():
     retval = []
     retval.append("delete from Course")  # delete all tuples
-    retval.append("insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1)")
-    retval.append("insert into Course values (2, 'Strength 102', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1)")
-    retval.append("insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1)")
-    retval.append("insert into Course values (4, 'Yoga 102', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1)")
+    retval.append("insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
+    retval.append("insert into Course values (2, 'Strength 102', 0, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
+    retval.append("insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
+    retval.append("insert into Course values (4, 'Yoga 102', 1, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
     retval.append("commit")
     return retval
 
@@ -317,6 +299,9 @@ def fillPackageCoursesTable():
 def fillMembershipInfoTable():
     retval = []
     retval.append("delete from MembershipInfo")  # delete all tuples
+    retval.append("insert into Memberships values (0, 'Basic', 0, 0)")
+    retval.append("insert into Memberships values (1, 'Diamond', 500, 10)")
+    retval.append("insert into Memberships values (2, 'Gold', 1000, 20)")
     retval.append("commit")
     return retval
 
