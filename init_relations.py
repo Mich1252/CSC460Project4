@@ -278,8 +278,9 @@ def fillPackageTable():
 def fillMembershipsTable():
     retval = []
     retval.append("delete from Memberships")  # delete all tuples
-    retval.append("insert into Memberships values (0, 'Diamond', 500, 10)")
-    retval.append("insert into Memberships values (1, 'Gold', 1000, 20)")
+    retval.append("insert into Memberships values (0, 'Basic', 0, 0)")
+    retval.append("insert into Memberships values (1, 'Diamond', 500, 10)")
+    retval.append("insert into Memberships values (2, 'Gold', 1000, 20)")
     retval.append("commit")
     return retval
 
