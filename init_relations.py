@@ -270,6 +270,9 @@ def fillMemberEnrolledTable():
     retval = []
     retval.append("delete from MemberEnrolled")  # delete all tuples
     retval.append("insert into MemberEnrolled values (0, 0)")
+    retval.append("insert into MemberEnrolled values (3, 1)")
+    retval.append("insert into MemberEnrolled values (4, 2)")
+    retval.append("insert into MemberEnrolled values (5, 2)")
     retval.append("commit")
     return retval
 
@@ -324,6 +327,14 @@ def fillCourseTable():
 def fillMemberCourseTable():
     retval = []
     retval.append("delete from MemberCourse")  # delete all tuples
+    retval.append("insert into MemberCourse values (0, 1)")
+    retval.append("insert into MemberCourse values (0, 3)")
+    retval.append("insert into MemberCourse values (3, 2)")
+    retval.append("insert into MemberCourse values (3, 4)")
+    retval.append("insert into MemberCourse values (4, 1)")
+    retval.append("insert into MemberCourse values (4, 2)")
+    retval.append("insert into MemberCourse values (5, 1)")
+    retval.append("insert into MemberCourse values (5, 2)")
     retval.append("commit")
     return retval
 
