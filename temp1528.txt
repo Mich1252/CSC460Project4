@@ -10,17 +10,17 @@ drop table Trainer
 drop table Course
 drop table MemberCourse
 commit
-create table Transaction (        TransactionID integer,        MemberID integer,        Amount float,        TransactionDate Date,        TransactionType varchar2(100),        Paid char(1),        primary key (TransactionID, MemberID)    )
+create table Transaction (        TransactionID integer,        MemberID integer,        Amount float,        TransactionDate Date,        TransactionType varchar2(100),        Paid char(1),        primary key (TransactionID)    )
 commit
-create table Equipment (        EquipmentID integer,        EquipmentName varchar2(100),        Available integer,        MaxQuantity integer,        primary key (EquipmentID, EquipmentName)    )
+create table Equipment (        EquipmentID integer,        EquipmentName varchar2(100),        Available integer,        MaxQuantity integer,        primary key (EquipmentID)    )
 commit
 create table Borrowed (        MemberID integer,        EquipmentID integer,        QuantityBorrowed integer,        CheckOutTime Date,        ReturnTime Date,        isLost char(1),        primary key (MemberID, EquipmentID, CheckOutTime)    )
 commit
-create table Member (        MemberID integer,        Name varchar2(50),        PhoneNum char(12),        AccountBalance float,        MembershipTypeID integer,        AmountSpent float,        primary key (MemberID, PhoneNum)    )
+create table Member (        MemberID integer,        Name varchar2(50),        PhoneNum char(12),        AccountBalance float,        MembershipTypeID integer,        AmountSpent float,        primary key (MemberID)    )
 commit
 create table MemberEnrolled (        MemberID integer,        PackageID Integer,        primary key (MemberID, PackageID)    )
 commit
-create table Package (        PackageID integer,        Name varchar2(50),        Price float,        primary key (PackageID, Name)    )
+create table Package (        PackageID integer,        Name varchar2(50),        Price float,        primary key (PackageID)    )
 commit
 create table PackageCourses (        PackageID integer,        CourseID Integer,        primary key (PackageID, CourseID)    )
 commit
@@ -79,6 +79,7 @@ insert into Member values (7, 'Michael Chen', '777-555-4444', 2500.5, 0, 80.25)
 insert into Member values (8, 'Olivia Davis', '999-333-2222', 1200.75, 2, 35.5)
 insert into Member values (9, 'Daniel Lee', '111-444-6666', 600.25, 1, 25.0)
 insert into Member values (10, 'Sophia Nguyen', '888-222-3333', 3000.0, 0, 90.75)
+insert into Member values (11, 'Dr. McCann', '111-111-1111', 3002.0, 1, 550.90)
 commit
 delete from MemberEnrolled
 insert into MemberEnrolled values (0, 0)
@@ -106,10 +107,10 @@ insert into Trainer values (0, 'Dr. McCann', '111-111-1111')
 insert into Trainer values (1, 'Prof. Proebsting', '222-222-2222')
 commit
 delete from Course
-insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'M')
-insert into Course values (2, 'Strength 102', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'T')
-insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'W')
-insert into Course values (4, 'Yoga 102', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'R')
+insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'MW')
+insert into Course values (2, 'Strength 102', 0, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'WF')
+insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'WF')
+insert into Course values (4, 'Yoga 102', 1, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'MW')
 commit
 delete from MemberCourse
 commit

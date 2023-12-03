@@ -27,9 +27,7 @@
  public class Program4 {
  
 	 public static void main(String[] args) {
-		 printMenu();
-		 System.out.println(
-				 "Make sure to run 'export CLASSPATH=/usr/lib/oracle/19.8/client64/lib/ojdbc8.jar:${CLASSPATH}'");
+		 System.out.println("Make sure to run 'export CLASSPATH=/usr/lib/oracle/19.8/client64/lib/ojdbc8.jar:${CLASSPATH}'");
 		 System.out.println("\n\nWelcome to GYM 460!");
 		 // Establish connection to database.
 		 Connection dbconn = estabConn();
