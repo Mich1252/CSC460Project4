@@ -9,12 +9,14 @@ def main():
     print("This script can be ran multiple times, just remember to enter Y if the tables need to be dropped first")
     print()
     all_statements = []
+
     # If the tables are already created, delete them first.
     already_created = None
     while already_created not in ["Y", "N"]:
         already_created = input("Are the tables already created on oracle.aloe? (Y/N) ")
     if already_created == "Y":
         all_statements += deleteAllTables()
+
     # Create tables.
     all_statements += createTransactionTable()
     all_statements += createEquipmentTable()
@@ -23,10 +25,10 @@ def main():
     all_statements += createMemberEnrolledTable()
     all_statements += createPackageTable()
     all_statements += createPackageCoursesTable()
-    all_statements += createMembershipsTable()
     all_statements += createMembershipInfoTable()
     all_statements += createTrainerTable()
     all_statements += createCourseTable()
+    all_statements += createMemberCourseTable()
 
     # Fill tables.
     all_statements += fillTransactionTable()
@@ -36,10 +38,11 @@ def main():
     all_statements += fillMemberEnrolledTable()
     all_statements += fillPackageTable()
     all_statements += fillPackageCoursesTable()
-    all_statements += fillMembershipsTable()
     all_statements += fillMembershipInfoTable()
     all_statements += fillTrainerTable()
     all_statements += fillCourseTable()
+    all_statements += fillMemberCourseTable()
+
     # Actually run the Oracle SQL statements.
     with open("temp1528.txt", "w") as file:
         for line in all_statements:
@@ -52,10 +55,13 @@ def deleteAllTables():
     retval.append("drop table Equipment")
     retval.append("drop table Borrowed")
     retval.append("drop table Member")
+    retval.append("drop table MemberEnrolled")
     retval.append("drop table Package")
-    retval.append("drop table Memberships")
+    retval.append("drop table PackageCourses")
+    retval.append("drop table MembershipInfo")
     retval.append("drop table Trainer")
     retval.append("drop table Course")
+    retval.append("drop table MemberCourse")
     retval.append("commit")
     return retval
 
@@ -66,7 +72,7 @@ def createTransactionTable():
         MemberID integer,
         Amount float,
         TransactionDate Date,
-        TransactionType varchar2(20),
+        TransactionType varchar2(100),
         Paid char(1),
         primary key (TransactionID)
     )""")
@@ -77,7 +83,7 @@ def createEquipmentTable():
     retval = []
     retval.append("""create table Equipment (
         EquipmentID integer,
-        EquipmentName varchar2(20),
+        EquipmentName varchar2(100),
         Available integer,
         MaxQuantity integer,
         primary key (EquipmentID)
@@ -106,7 +112,7 @@ def createMemberTable():
         Name varchar2(50),
         PhoneNum char(12),
         AccountBalance float,
-        MembershipID integer,
+        MembershipTypeID integer,
         AmountSpent float,
         primary key (MemberID)
     )""")
@@ -146,12 +152,12 @@ def createPackageCoursesTable():
 
 def createMembershipInfoTable():
     retval = []
-    retval.append("""create table Memberships (
-        MembershipID integer,
+    retval.append("""create table MembershipInfo (
+        MembershipTypeID integer,
         Name varchar2(50),
         MinSpend float,
         Discount integer,
-        primary key (MembershipID)
+        primary key (MembershipTypeID, Name)
     )""")
     retval.append("commit")
     return retval
@@ -171,7 +177,7 @@ def createCourseTable():
     retval = []
     retval.append("""create table Course (
         CourseID integer,
-        Name varchar2(20),
+        Name varchar2(100),
         TrainerID integer,
         StartTime integer,
         StartDate Date,
@@ -179,8 +185,18 @@ def createCourseTable():
         Duration integer,
         MaxEnrolled integer,
         CurrentEnrolled integer,
-        DaysOfTheWeek varchar2(14)
-        primary key (CourseID)
+        DaysOfTheWeek varchar2(14),
+        primary key (CourseID, Name)
+    )""")
+    retval.append("commit")
+    return retval
+
+def createMemberCourseTable():
+    retval = []
+    retval.append("""create table MemberCourse (
+        MemberID integer,
+        CourseID integer,
+        primary key (MemberID, CourseID)
     )""")
     retval.append("commit")
     return retval
@@ -188,23 +204,23 @@ def createCourseTable():
 def fillTransactionTable():
     retval = []
     retval.append("delete from Transaction")  # delete all tuples
-    retval.append("insert into Transaction values (0, 300, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (1, 50.75, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (1, 25.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (2, 40.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (3, 20.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (3, 15.5, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
-    retval.append("insert into Transaction values (4, 5.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (4, 10.0, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (5, 30.75, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (6, 60.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (6, 45.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
-    retval.append("insert into Transaction values (7, 80.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (8, 35.5, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (8, 40.25, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (9, 25.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (9, 30.0, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
-    retval.append("insert into Transaction values (10, 90.75, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (0, 0, 300, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (1, 0, 50.75, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (2, 0, 25.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (3, 0, 40.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (4, 0, 20.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (5, 0, 15.5, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
+    retval.append("insert into Transaction values (6, 0, 5.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (7, 0, 10.0, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (8, 0, 30.75, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (9, 0, 60.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (10, 0, 45.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
+    retval.append("insert into Transaction values (11, 0, 80.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (12, 0, 35.5, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (13, 0, 40.25, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (14, 0, 25.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (15, 0, 30.0, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
+    retval.append("insert into Transaction values (16, 0, 90.75, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
     retval.append("commit")
     return retval
 
@@ -266,24 +282,6 @@ def fillPackageTable():
     retval.append("commit")
     return retval
 
-def fillTrainerTable():
-    retval = []
-    retval.append("delete from Trainer")  # delete all tuples
-    retval.append("insert into Trainer values (0, 'Dr. McCann', '111-111-1111')")
-    retval.append("insert into Trainer values (1, 'Prof. Proebsting', '222-222-2222')")
-    retval.append("commit")
-    return retval
-
-def fillCourseTable():
-    retval = []
-    retval.append("delete from Course")  # delete all tuples
-    retval.append("insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
-    retval.append("insert into Course values (2, 'Strength 102', 0, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
-    retval.append("insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
-    retval.append("insert into Course values (4, 'Yoga 102', 1, 1500, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, MoWeFr)")
-    retval.append("commit")
-    return retval
-
 def fillPackageCoursesTable():
     retval = []
     retval.append("delete from PackageCourses")  # delete all tuples
@@ -299,9 +297,33 @@ def fillPackageCoursesTable():
 def fillMembershipInfoTable():
     retval = []
     retval.append("delete from MembershipInfo")  # delete all tuples
-    retval.append("insert into Memberships values (0, 'Basic', 0, 0)")
-    retval.append("insert into Memberships values (1, 'Diamond', 500, 10)")
-    retval.append("insert into Memberships values (2, 'Gold', 1000, 20)")
+    retval.append("insert into MembershipInfo values (0, 'Basic', 0, 0)")
+    retval.append("insert into MembershipInfo values (1, 'Diamond', 500, 10)")
+    retval.append("insert into MembershipInfo values (2, 'Gold', 1000, 20)")
+    retval.append("commit")
+    return retval
+
+def fillTrainerTable():
+    retval = []
+    retval.append("delete from Trainer")  # delete all tuples
+    retval.append("insert into Trainer values (0, 'Dr. McCann', '111-111-1111')")
+    retval.append("insert into Trainer values (1, 'Prof. Proebsting', '222-222-2222')")
+    retval.append("commit")
+    return retval
+
+def fillCourseTable():
+    retval = []
+    retval.append("delete from Course")  # delete all tuples
+    retval.append("insert into Course values (1, 'Strength 101', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'M')")
+    retval.append("insert into Course values (2, 'Strength 102', 0, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'T')")
+    retval.append("insert into Course values (3, 'Yoga 101', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'W')")
+    retval.append("insert into Course values (4, 'Yoga 102', 1, 1400, TO_DATE('08/23/2023', 'MM/DD/YYYY'), TO_DATE('12/02/2023', 'MM/DD/YYYY'), 60, 50, 1, 'R')")
+    retval.append("commit")
+    return retval
+
+def fillMemberCourseTable():
+    retval = []
+    retval.append("delete from MemberCourse")  # delete all tuples
     retval.append("commit")
     return retval
 
