@@ -30,14 +30,14 @@ public class Program4 {
 	/*
 	 * Argument for an ID counter
 	 */
-	private Integer IDcounter = 0;
+	private static Integer IDcounter = 0;
 	
 	/**
 	 * 
 	 * @param args
 	 */
 
-	public  void main(String[] args) {
+	public static void main(String[] args) {
 		System.out.println(
 				"Make sure to run 'export CLASSPATH=/usr/lib/oracle/19.8/client64/lib/ojdbc8.jar:${CLASSPATH}'");
 		System.out.println("\n\nWelcome to GYM 460!");
@@ -55,7 +55,7 @@ public class Program4 {
 		closeConn(dbconn);
 	}
 
-	private  void printMenu() {
+	private static void printMenu() {
 		System.out.println();
 		System.out.println("Available Operations:");
 		System.out.println("(a) Add a member");
@@ -72,7 +72,7 @@ public class Program4 {
 		System.out.println("(l) Exit");
 	}
 
-	private  boolean takeUserInput(Connection dbconn, Scanner scanner) {
+	private static boolean takeUserInput(Connection dbconn, Scanner scanner) {
 		System.out.print("Letter: ");
 		// wait for user input
 		while (!scanner.hasNextLine()) {
@@ -123,7 +123,7 @@ public class Program4 {
 	 * 
 	 * @param dbconn
 	 */
-	private  void addMember(Connection dbconn) {
+	private static void addMember(Connection dbconn) {
 		try {
 
 			// Get basic information
@@ -133,15 +133,27 @@ public class Program4 {
 			System.out.print("Enter New Member\'s Phone Number (XXX-XXX-XXXX): ");
 			String phoneNum = scanner.nextLine();
 
+			// get the highest ID, and increment it by 1
+			Statement IDstmt = dbconn.createStatement();
+			String IDquery = "SELECT MAX(MemberID) FROM Member";
+			ResultSet IDresults = IDstmt.executeQuery(IDquery);
+			// get the only value from the result set and increment it by 1
+			if (IDresults.next()) {
+				IDcounter = IDresults.getInt("MAX(MemberID)") + 1;
+			}
+			IDstmt.close();
+
+			// append quotation around the name and phone number to make it a string
+			name = "\'" + name + "\'";
+			phoneNum = "\'" + phoneNum + "\'";
+			
+			System.out.println("IDcounter: " + IDcounter);
 			// use insert to add a member
 			Statement stmt = dbconn.createStatement();
 			String query = "insert into Member values ("+IDcounter+", "+name+", "+phoneNum+", 0, 0, 0)";
+			System.out.println(query);
 			stmt.executeQuery(query);
 			stmt.close();
-			
-			//Increment IDcounter and close the scanner
-			IDcounter++;
-			scanner.close();
 			
 		} catch (SQLException e) {
 			System.out.println("Error in addMember.");
@@ -150,12 +162,23 @@ public class Program4 {
 		}
 	}
 
-	private  void deleteMember(Connection dbconn) {
+	private static void deleteMember(Connection dbconn) {
 		try {
 			// Get basic information
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter Member\'s ID: ");
 			String memberID = scanner.nextLine();
+
+			// First check if the member has a negative balance
+			Statement negativecheck = dbconn.createStatement();
+			String query = "SELECT Balance FROM Member WHERE MemberID = " + memberID;
+			// if the returned balance is negative, then the member has a negative balance,
+			// return an error
+			ResultSet results = negativecheck.executeQuery(query);
+			if (results.getInt("Balance") < 0) {
+				System.out.println("Error: Member has a negative balance. Cannot delete member.");
+				return;
+			}
 
 			Statement stmt = dbconn.createStatement();
 			stmt.close();
@@ -166,7 +189,7 @@ public class Program4 {
 		;
 	}
 
-	private  void addCourse(Connection dbconn) {
+	private static void addCourse(Connection dbconn) {
 		try {
 			// Get basic information about the course
 			Scanner scanner = new Scanner(System.in);
@@ -215,7 +238,7 @@ public class Program4 {
 		;
 	}
 
-	private  void deleteCourse(Connection dbconn) {
+	private static void deleteCourse(Connection dbconn) {
 		try {
 			// Display all active course
 			System.out.println("Current Active courses");
@@ -245,7 +268,7 @@ public class Program4 {
 	 * 
 	 * @param dbconn
 	 */
-	private void addPackage(Connection dbconn) {
+	private static void addPackage(Connection dbconn) {
 		try {
 			
 			//Get package name
@@ -316,7 +339,7 @@ public class Program4 {
 		}
 	}
 
-	private  void deletePackage(Connection dbconn) {
+	private static void deletePackage(Connection dbconn) {
 		try {
 			// print all the active packages
 			System.out.println("Current Active packages");
@@ -340,7 +363,7 @@ public class Program4 {
 		;
 	}
 
-	private  void updatePackage(Connection dbconn) {
+	private static void updatePackage(Connection dbconn) {
 		try {
 			Statement stmt = dbconn.createStatement();
 			stmt.close();
@@ -351,7 +374,7 @@ public class Program4 {
 		;
 	}
 
-	private  void query1(Connection dbconn) {
+	private static void query1(Connection dbconn) {
 		try {
 			// Get negative balance members
 			// Query: SELECT name, phone_num FROM members WHERE balance < 0;
@@ -370,7 +393,7 @@ public class Program4 {
 		;
 	}
 
-	private  void query2(Connection dbconn) {
+	private static void query2(Connection dbconn) {
 		try {
 			// Get the Member's ID that we want to check
 			Scanner scanner = new Scanner(System.in);
@@ -403,7 +426,7 @@ public class Program4 {
 		;
 	}
 
-	private  void query3(Connection dbconn) {
+	private static void query3(Connection dbconn) {
 		try {
 			// TODO
 			Statement stmt = dbconn.createStatement();
@@ -415,7 +438,7 @@ public class Program4 {
 		;
 	}
 
-	private  void query4(Connection dbconn) {
+	private static void query4(Connection dbconn) {
 		try {
 			//Get the member's ID to check
 			Scanner scanner = new Scanner(System.in);
@@ -437,7 +460,7 @@ public class Program4 {
 	 * Name: estabConn Purpose: Establish a connection with the database using JDBC.
 	 * Returns: Connection object for communication with the database.
 	 */
-	private  Connection estabConn() {
+	private static Connection estabConn() {
 		final String oracleURL = // Magic lectura -> aloe access spell
 				"jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
 
@@ -485,7 +508,7 @@ public class Program4 {
 	 * Name: closeConn Purpose: Closes the connection to the database. Parameters:
 	 * conn - in - Connection object to the database to close.
 	 */
-	private  void closeConn(Connection conn) {
+	private static void closeConn(Connection conn) {
 		try {
 			conn.close();
 		} catch (SQLException e) {
@@ -496,7 +519,7 @@ public class Program4 {
 	/***
 	 * Name: Exit Purpose: Exit the program Parameters: None
 	 */
-	private  void exit() {
+	private static void exit() {
 		System.exit(1);
 	}
 
