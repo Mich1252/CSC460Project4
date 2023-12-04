@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.sql.ResultSetMetaData;
 
 public class Program4 {
 	
@@ -114,6 +115,106 @@ public class Program4 {
 		return true;
 	}
 
+	/*
+	 * Name: printResults Purpose: Print the results of a query. Parameters: answer
+	 * - in - ResultSet object containing the results of a query.
+	 * NOTE - any ResultSet given MUST have a statement created using a format of:
+	 * Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	 */
+	private static int printResults(ResultSet answer) {
+		System.out.println();
+		int rows = 0;
+		// call the query
+		try {
+			if (answer != null) {
+				// print out the columns we need to dynamically expand the line size with the actual
+				// information within
+				ResultSetMetaData answermetadata = answer.getMetaData();
+				
+				int[] columnLength = new int[answermetadata.getColumnCount()];
+				int lenSum = 0;
+				// find the maximum length of each column
+				while (answer.next()) {
+					// replace the maximum values if found, also check the length of the column name
+					for (int i = 1; i <= answermetadata.getColumnCount(); i++) {
+						// if a datetime object is detected, then take it in as a datetime object
+						if (answer.getString(i).length() > columnLength[i - 1]) {
+							columnLength[i - 1] = answer.getString(i).length();
+						}
+						if (answermetadata.getColumnName(i).length() > columnLength[i - 1]) {
+							columnLength[i - 1] = answermetadata.getColumnName(i).length();
+						}
+					}
+				}
+
+				// get the sum of the column lengths
+				for (int i = 0; i < columnLength.length; i++) {
+					lenSum += columnLength[i];
+				}
+
+				// if 0 lenSum, then there are no results
+				if (lenSum == 0) {
+					return 0;
+				}
+
+				int length = 0;
+				// reset answer to the beginning
+				answer.beforeFirst();
+
+				// print out column names
+				for (int i = 1; i <= answermetadata.getColumnCount(); i++) {
+					System.out.print(answermetadata.getColumnName(i));
+					length = answermetadata.getColumnName(i).length();
+					// print out the spaces to make the columns line up
+					for (int j = 0; j < columnLength[i - 1] - length; j++) {
+						System.out.print(" ");
+					}
+					if (i != answermetadata.getColumnCount()) {
+						System.out.print("  |  ");
+					}
+				}
+
+				System.out.println();
+				// print out a divider line made up of dashes
+				for (int i = 0; i < columnLength.length; i++) {
+					for (int j = 0; j < columnLength[i]; j++) {
+						System.out.print("-");
+					}
+					if (i != columnLength.length - 1) {
+						System.out.print("--|--");
+					}
+				}
+
+				// print out the rows and their respective data
+				while (answer.next()) {
+					System.out.println();
+					for (int i = 1; i <= answermetadata.getColumnCount(); i++) {
+						System.out.print(answer.getString(i));
+						length = answer.getString(i).length();
+						// print out the spaces to make the columns line up
+						for (int j = 0; j < columnLength[i - 1] - length; j++) {
+							System.out.print(" ");
+						}
+						if (i != answermetadata.getColumnCount()) {
+							System.out.print("  |  ");
+						}
+					}
+					rows++;
+				}
+				System.out.println("\n");
+			}
+			return rows;
+		} catch (SQLException e) {
+			System.err.println("*** SQLException:  "
+				+ "Could not fetch query results.");
+			System.err.println("\tMessage:   " + e.getMessage());
+			System.err.println("\tSQLState:  " + e.getSQLState());
+			System.err.println("\tErrorCode: " + e.getErrorCode());
+			System.exit(-1);
+		}
+		return rows;
+	}
+
 	/***
 	 * Name: addMember
 	 * 
@@ -154,7 +255,10 @@ public class Program4 {
 			System.out.println(query);
 			stmt.executeQuery(query);
 			stmt.close();
+<<<<<<< Updated upstream
 			
+=======
+>>>>>>> Stashed changes
 		} catch (SQLException e) {
 			System.out.println("Error in addMember.");
 			System.out.println(e);
@@ -169,6 +273,7 @@ public class Program4 {
 			System.out.print("Enter Member\'s ID: ");
 			String memberID = scanner.nextLine();
 
+<<<<<<< Updated upstream
 			// First check if the member has a negative balance
 			Statement negativecheck = dbconn.createStatement();
 			String query = "SELECT Balance FROM Member WHERE MemberID = " + memberID;
@@ -182,6 +287,77 @@ public class Program4 {
 
 			Statement stmt = dbconn.createStatement();
 			stmt.close();
+=======
+			// First check if the member has a negative balance, we look at table Transaction for all Paid='N' with our memberID
+			Statement negativecheck = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			String query = "SELECT * FROM Transaction WHERE MemberID = " + memberID + "AND Paid = \'N\'";
+			// if the returned balance is negative, then the member has a negative balance,
+			// return an error
+			ResultSet results = negativecheck.executeQuery(query);
+
+			int rows = printResults(results);
+			if (rows > 0) {
+				// print out number of unpaid
+				System.out.println("\nNumber of unpaid transactions: " + rows + "\n");
+				System.out.println("This member has a negative balance, please pay the balance first.");
+				return;
+			}
+
+			// The member exists and has a non negative balance, now we check for equipment rentals
+			Statement equipmentcheck = dbconn.createStatement();
+			// check for borrowed and equipment that is not returned
+			query = "SELECT COUNT(*) FROM Borrowed WHERE MemberID = " + memberID + " AND ISLOST = \'N\'";
+			results = equipmentcheck.executeQuery(query);
+			
+			int numEquipmentRentals = 0;
+			// if there next
+			if (results.next()) {
+				numEquipmentRentals = results.getInt("COUNT(*)");
+			}
+
+			equipmentcheck.close();
+			
+			// if the user indeed has equipment rentals, then we need to update them.
+			if (numEquipmentRentals > 0) {
+				Statement quantityequip = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				// start by getting all of the equipmentID and quantityborrowed that is NOT lost
+				query = "SELECT EquipmentID, QuantityBorrowed FROM Borrowed WHERE MemberID = " + memberID + " AND ISLOST = \'N\'";
+				results = quantityequip.executeQuery(query);
+				// array for equipmentID and quantity borrowed
+				int[] equipmentID = new int[numEquipmentRentals];
+				int[] quantityBorrowed = new int[numEquipmentRentals];
+				int i = 0;
+				// get the equipmentID and quantity borrowed
+				while (results.next()) {
+					equipmentID[i] = results.getInt("EquipmentID");
+					quantityBorrowed[i] = results.getInt("QuantityBorrowed");
+					i++;
+				}
+				quantityequip.close();
+				// now write queries to update the equipment table, subtracting the quantity borrowed from the quantity available
+				for (int j = 0; j < numEquipmentRentals; j++) {
+					Statement updateequip = dbconn.createStatement();
+					query = "UPDATE Equipment SET Available = Available - " + quantityBorrowed[j] + " WHERE EquipmentID = " + equipmentID[j];
+					updateequip.executeQuery(query);
+					updateequip.close();
+				}
+
+				// now we need to update the borrowed table to set islost to Y
+				Statement updateborrowed = dbconn.createStatement();
+				query = "UPDATE Borrowed SET ISLOST = \'Y\' WHERE MemberID = " + memberID;
+				updateborrowed.executeQuery(query);
+				updateborrowed.close();
+			}
+
+			// Now we need to delete the member from the member table
+			Statement deletemember = dbconn.createStatement();
+			query = "DELETE FROM Member WHERE MemberID = " + memberID;
+			deletemember.executeQuery(query);
+			deletemember.close();
+			
+			System.out.println("Member " + memberID + " has been deleted.\n");
+
+>>>>>>> Stashed changes
 		} catch (SQLException e) {
 			System.out.println("Error in deleteMember.");
 			System.out.println(e);
