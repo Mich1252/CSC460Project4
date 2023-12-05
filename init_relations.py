@@ -204,21 +204,21 @@ def createMemberCourseTable():
 def fillTransactionTable():
     retval = []
     retval.append("delete from Transaction")  # delete all tuples
-    retval.append("insert into Transaction values (0, 0, 300, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (0, 1, 300, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
     retval.append("insert into Transaction values (1, 0, 50.75, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (2, 0, 25.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (3, 0, 40.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (4, 0, 20.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (5, 0, 15.5, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
-    retval.append("insert into Transaction values (6, 0, 5.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (7, 0, 10.0, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (8, 0, 30.75, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (9, 0, 60.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (10, 0, 45.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
+    retval.append("insert into Transaction values (2, 2, 25.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (3, 3, 40.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (4, 2, 20.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (5, 1, 15.5, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
+    retval.append("insert into Transaction values (6, 3, 5.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (7, 3, 10.0, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (8, 2, 30.75, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (9, 3, 60.0, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (10, 1, 45.25, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
     retval.append("insert into Transaction values (11, 0, 80.25, TO_DATE('11/30/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
     retval.append("insert into Transaction values (12, 0, 35.5, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
-    retval.append("insert into Transaction values (13, 0, 40.25, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
-    retval.append("insert into Transaction values (14, 0, 25.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
+    retval.append("insert into Transaction values (13, 3, 40.25, TO_DATE('12/02/2023', 'MM/DD/YYYY'), 'Recharge', 'N')")
+    retval.append("insert into Transaction values (14, 4, 25.0, TO_DATE('11/29/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
     retval.append("insert into Transaction values (15, 0, 30.0, TO_DATE('12/01/2023', 'MM/DD/YYYY'), 'Recharge', 'Y')")
     retval.append("insert into Transaction values (16, 0, 90.75, TO_DATE('11/28/2023', 'MM/DD/YYYY'), 'Purchase', 'Y')")
     retval.append("commit")
@@ -244,7 +244,7 @@ def fillEquipmentTable():
 def fillBorrowedTable():
     retval = []
     retval.append("delete from Borrowed")  # delete all tuples
-    retval.append("insert into Borrowed values (0, 0, 1, TO_DATE('11/29/2023', 'MM/DD/YYYY'), '', 'N')")
+    retval.append("insert into Borrowed values (0, 0, 1, TO_DATE('11/29/2023', 'MM/DD/YYYY'), NULL, 'N')")
     retval.append("commit")
     return retval
 
@@ -252,15 +252,15 @@ def fillMemberTable():
     retval = []
     retval.append("delete from Member")  # delete all tuples
     retval.append("insert into Member values (0, 'JhihYang', '000-000-0000', 1234.5, 0, 20)")
-    retval.append("insert into Member values (1, 'John Doe', '111-222-3333', 1500.75, 1, 50.25)")
-    retval.append("insert into Member values (2, 'Jane Smith', '555-666-7777', 2000.0, 1, 75.5)")
-    retval.append("insert into Member values (3, 'Bob Johnson', '999-888-7777', 800.25, 2, 30.75)")
-    retval.append("insert into Member values (4, 'Alice Brown', '444-333-2222', 300.5, 2, 10.0)")
+    retval.append("insert into Member values (1, 'John Doe', '111-222-3333', 1500.75, 0, 50.25)")
+    retval.append("insert into Member values (2, 'Jane Smith', '555-666-7777', 2000.0, 0, 75.5)")
+    retval.append("insert into Member values (3, 'Bob Johnson', '999-888-7777', 800.25, 0, 30.75)")
+    retval.append("insert into Member values (4, 'Alice Brown', '444-333-2222', 300.5, 0, 10.0)")
     retval.append("insert into Member values (5, 'Charlie Wilson', '777-888-9999', 1200.0, 0, 45.75)")
-    retval.append("insert into Member values (6, 'Eva Rodriguez', '555-111-2222', 1800.0, 1, 60.0)")
+    retval.append("insert into Member values (6, 'Eva Rodriguez', '555-111-2222', 1800.0, 0, 60.0)")
     retval.append("insert into Member values (7, 'Michael Chen', '777-555-4444', 2500.5, 0, 80.25)")
-    retval.append("insert into Member values (8, 'Olivia Davis', '999-333-2222', 1200.75, 2, 35.5)")
-    retval.append("insert into Member values (9, 'Daniel Lee', '111-444-6666', 600.25, 1, 25.0)")
+    retval.append("insert into Member values (8, 'Olivia Davis', '999-333-2222', 1200.75, 0, 35.5)")
+    retval.append("insert into Member values (9, 'Daniel Lee', '111-444-6666', 600.25, 0, 25.0)")
     retval.append("insert into Member values (10, 'Sophia Nguyen', '888-222-3333', 3000.0, 0, 90.75)")
     retval.append("insert into Member values (11, 'Dr. McCann', '111-111-1111', 3002.0, 1, 550.90)")
     retval.append("commit")
