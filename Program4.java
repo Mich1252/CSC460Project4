@@ -23,20 +23,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.sql.ResultSetMetaData;
 
 public class Program4 {
 	
-	/*
-	 * Argument for an ID counter
-	 */
-	private static Integer IDcounter = 0;
-	
-	/**
-	 * 
-	 * @param args
-	 */
+    private static String todayDate = "12/01/2023";
 
 	public static void main(String[] args) {
 		System.out.println(
@@ -238,9 +231,10 @@ public class Program4 {
 			Statement IDstmt = dbconn.createStatement();
 			String IDquery = "SELECT MAX(MemberID) FROM Member";
 			ResultSet IDresults = IDstmt.executeQuery(IDquery);
-			// get the only value from the result set and increment it by 1
+			// git the only value from the result set and increment it by 1
+            int newMemberID = 0;
 			if (IDresults.next()) {
-				IDcounter = IDresults.getInt("MAX(MemberID)") + 1;
+				newMemberID = IDresults.getInt("MAX(MemberID)") + 1;
 			}
 			IDstmt.close();
 
@@ -248,21 +242,37 @@ public class Program4 {
 			name = "\'" + name + "\'";
 			phoneNum = "\'" + phoneNum + "\'";
 			
-			System.out.println("IDcounter: " + IDcounter);
 			// use insert to add a member
 			Statement stmt = dbconn.createStatement();
-			String query = "insert into Member values ("+IDcounter+", "+name+", "+phoneNum+", 0, 0, 0)";
-			System.out.println(query);
+			String query = "insert into Member values ("+newMemberID+", "+name+", "+phoneNum+", 0, 0, 0)";
 			stmt.executeQuery(query);
 			stmt.close();
-<<<<<<< Updated upstream
-			
-=======
->>>>>>> Stashed changes
+
+            System.out.println("Please select a package:");
+            // Present user with packages to select.
+            Statement packagesStmt = dbconn.createStatement();
+            String packagesQuery = "SELECT * FROM Package";
+            ResultSet packagesRes = packagesStmt.executeQuery(packagesQuery);
+            while (packagesRes.next()) {
+                int packID = packagesRes.getInt("PackageID");
+                String packName = packagesRes.getString("Name");
+                double price = packagesRes.getFloat("Price");
+                System.out.println("PackageID: " + packID + "\t" + packName + " $" + price);
+                // Present which courses are in this package.
+				Statement whichCourses = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                String whichCoursesQuery = "SELECT Course.CourseID, Name, StartTime, StartDate, EndDate, Duration, CurrentEnrolled, MaxEnrolled, DaysOfTheWeek FROM PackageCourses, Course WHERE PackageCourses.CourseID=Course.CourseID AND PackageCourses.PackageID="+packID;
+                ResultSet whichCoursesRes = whichCourses.executeQuery(whichCoursesQuery);
+                printResults(whichCoursesRes);
+            }
+            packagesStmt.close();
+
+            // Ask user to select a packageID.
+            System.out.print("PackageID: ");
+            int chosenPack = Integer.valueOf(scanner.nextLine());
+            // TODO: Actually enroll member in package chosenPack (update CurrentEnrolled, MemberCourse Table, MemberEnrolledTable, etc).
 		} catch (SQLException e) {
 			System.out.println("Error in addMember.");
 			System.out.println(e);
-			exit();
 		}
 	}
 
@@ -271,61 +281,40 @@ public class Program4 {
 			// Get basic information
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter Member\'s ID: ");
-			String memberID = scanner.nextLine();
+			int memberID = Integer.valueOf(scanner.nextLine());
 
-<<<<<<< Updated upstream
-			// First check if the member has a negative balance
-			Statement negativecheck = dbconn.createStatement();
-			String query = "SELECT Balance FROM Member WHERE MemberID = " + memberID;
-			// if the returned balance is negative, then the member has a negative balance,
-			// return an error
-			ResultSet results = negativecheck.executeQuery(query);
-			if (results.getInt("Balance") < 0) {
-				System.out.println("Error: Member has a negative balance. Cannot delete member.");
-				return;
-			}
-
-			Statement stmt = dbconn.createStatement();
-			stmt.close();
-=======
-			// First check if the member has a negative balance, we look at table Transaction for all Paid='N' with our memberID
+            // First, examine transaction history for unpaid amounts.
+            // we look at table Transaction for all Paid='N' with our memberID
 			Statement negativecheck = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			String query = "SELECT * FROM Transaction WHERE MemberID = " + memberID + "AND Paid = \'N\'";
-			// if the returned balance is negative, then the member has a negative balance,
-			// return an error
+			String query = "SELECT * FROM Transaction WHERE MemberID = " + memberID + "AND Paid = 'N'";
+			// if there are any unpaid transaction, the member has a negative balance
 			ResultSet results = negativecheck.executeQuery(query);
-
 			int rows = printResults(results);
 			if (rows > 0) {
 				// print out number of unpaid
-				System.out.println("\nNumber of unpaid transactions: " + rows + "\n");
+				System.out.println("\nNumber of unpaid transactions: " + rows);
 				System.out.println("This member has a negative balance, please pay the balance first.");
 				return;
 			}
 
+            // Verify if the member has any unreturned equipment.
 			// The member exists and has a non negative balance, now we check for equipment rentals
 			Statement equipmentcheck = dbconn.createStatement();
 			// check for borrowed and equipment that is not returned
-			query = "SELECT COUNT(*) FROM Borrowed WHERE MemberID = " + memberID + " AND ISLOST = \'N\'";
+			query = "SELECT COUNT(*) FROM Borrowed WHERE MemberID = " + memberID + " AND isLost = 'N' AND ReturnTime IS NULL";
 			results = equipmentcheck.executeQuery(query);
-			
-			int numEquipmentRentals = 0;
-			// if there next
-			if (results.next()) {
-				numEquipmentRentals = results.getInt("COUNT(*)");
-			}
-
+            results.next();
+            int numUnreturned = results.getInt("COUNT(*)");
 			equipmentcheck.close();
-			
-			// if the user indeed has equipment rentals, then we need to update them.
-			if (numEquipmentRentals > 0) {
+			// if the user indeed has equipment rentals unreturned, then we need to update them.
+			if (numUnreturned > 0) {
 				Statement quantityequip = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-				// start by getting all of the equipmentID and quantityborrowed that is NOT lost
-				query = "SELECT EquipmentID, QuantityBorrowed FROM Borrowed WHERE MemberID = " + memberID + " AND ISLOST = \'N\'";
+				// start by getting all of the equipmentID and quantityborrowed that is NOT lost yet
+                query = "SELECT EquipmentID, QuantityBorrowed FROM Borrowed WHERE MemberID = " + memberID + " AND isLost = 'N' AND ReturnTime IS NULL";
 				results = quantityequip.executeQuery(query);
 				// array for equipmentID and quantity borrowed
-				int[] equipmentID = new int[numEquipmentRentals];
-				int[] quantityBorrowed = new int[numEquipmentRentals];
+				int[] equipmentID = new int[numUnreturned];
+				int[] quantityBorrowed = new int[numUnreturned];
 				int i = 0;
 				// get the equipmentID and quantity borrowed
 				while (results.next()) {
@@ -335,34 +324,31 @@ public class Program4 {
 				}
 				quantityequip.close();
 				// now write queries to update the equipment table, subtracting the quantity borrowed from the quantity available
-				for (int j = 0; j < numEquipmentRentals; j++) {
+				for (int j = 0; j < numUnreturned; j++) {
 					Statement updateequip = dbconn.createStatement();
-					query = "UPDATE Equipment SET Available = Available - " + quantityBorrowed[j] + " WHERE EquipmentID = " + equipmentID[j];
+					query = "UPDATE Equipment SET MaxQuantity = MaxQuantity - " + quantityBorrowed[j] + " WHERE EquipmentID = " + equipmentID[j];
 					updateequip.executeQuery(query);
 					updateequip.close();
 				}
-
 				// now we need to update the borrowed table to set islost to Y
 				Statement updateborrowed = dbconn.createStatement();
-				query = "UPDATE Borrowed SET ISLOST = \'Y\' WHERE MemberID = " + memberID;
+				query = "UPDATE Borrowed SET isLost = 'Y' WHERE MemberID = " + memberID + "AND ReturnTime IS NULL";
 				updateborrowed.executeQuery(query);
 				updateborrowed.close();
 			}
+
+            // TODO: Unenroll member from any courses he/she was in.
 
 			// Now we need to delete the member from the member table
 			Statement deletemember = dbconn.createStatement();
 			query = "DELETE FROM Member WHERE MemberID = " + memberID;
 			deletemember.executeQuery(query);
 			deletemember.close();
-			
 			System.out.println("Member " + memberID + " has been deleted.\n");
-
->>>>>>> Stashed changes
 		} catch (SQLException e) {
 			System.out.println("Error in deleteMember.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void addCourse(Connection dbconn) {
@@ -386,11 +372,22 @@ public class Program4 {
 			System.out.print("What Days of the Week Will the Course Run (MTWRF): ");
 			String days = scanner.nextLine();
 
-
+            // Get MAX(CourseID) first.
+            Statement maxStmt = dbconn.createStatement();
+            String maxQuery = "SELECT MAX(CourseID) FROM Course";
+            ResultSet maxQueryRes = maxStmt.executeQuery(maxQuery);
+            maxQueryRes.next();
+            int newCourseID = maxQueryRes.getInt("MAX(CourseID)") + 1;
+            maxStmt.close();
+            
+            // Create new Course in database.
 			Statement stmt = dbconn.createStatement();
-			
+            name = "'" + name + "'";
+            startDate = "TO_DATE('" + startDate + "', 'MM/DD/YYYY')";
+            endDate = "TO_DATE('" + endDate + "', 'MM/DD/YYYY')";
+            days = "'" + days + "'";
 			String query = "insert into Course values ("
-					+ IDcounter+", "
+					+ newCourseID+", "
 					+ name+", "
 					+ trainer+", "
 					+ time+", "
@@ -403,39 +400,56 @@ public class Program4 {
 			stmt.executeQuery(query);
 			stmt.close();
 			
-			//Increment IDcounter and close the scanner
-			IDcounter++;
-			scanner.close();
-			
+            System.out.println("Course created successfully.");
 		} catch (SQLException e) {
 			System.out.println("Error in addCourse.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void deleteCourse(Connection dbconn) {
 		try {
-			// Display all active course
-			System.out.println("Current Active courses");
-			Statement stmt = dbconn.createStatement();
-			stmt.close();
-
 			// Get basic information for deletion
 			Scanner scanner = new Scanner(System.in);
-			System.out.print("Enter Course\'s ID to remove: ");
-			String courseID = scanner.nextLine();
+			System.out.print("Enter Course's ID to remove: ");
+			int courseID = Integer.valueOf(scanner.nextLine());
 
-			Statement stmt2 = dbconn.createStatement();
-			stmt2.close();
+            // Check if it is active and has people enrolled.
+            Statement needToNotify = dbconn.createStatement();
+            String needToNotifyQuery = "SELECT COUNT(*) FROM Course WHERE CourseID="+courseID+" AND EndDate>TO_DATE('"+todayDate+"', 'MM/DD/YYYY') AND CurrentEnrolled>0";
+            ResultSet needToNotifyRes = needToNotify.executeQuery(needToNotifyQuery);
+            needToNotifyRes.next();
+
+            if (needToNotifyRes.getInt("COUNT(*)") > 0) {
+                // Need to notify first before deleting course.
+                System.out.println("Please notify these members about Course deletion:");
+                Statement notification = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                String notifQuery = "SELECT Name, PhoneNum FROM MemberCourse, Member WHERE MemberCourse.MemberID=Member.MemberID AND CourseID="+courseID;
+                ResultSet notifRes = notification.executeQuery(notifQuery);
+                printResults(notifRes);
+                notification.close();
+            }
+            needToNotify.close();
+
+            // Delete the course.
+			Statement deletecourse = dbconn.createStatement();
+			String delQuery = "DELETE FROM Course WHERE CourseID = " + courseID;
+			deletecourse.executeQuery(delQuery);
+			deletecourse.close();
+            // Delete MemberCourse tuples with deleted courseID.
+			deletecourse = dbconn.createStatement();
+			delQuery = "DELETE FROM MemberCourse WHERE CourseID = " + courseID;
+			deletecourse.executeQuery(delQuery);
+			deletecourse.close();
+
+			System.out.println("Course " + courseID + " has been deleted.");
 		} catch (SQLException e) {
 			System.out.println("Error in deleteCourse.");
 			System.out.println(e);
 		}
-		;
 	}
 
-	/***
+	/**
 	 * Name: addPackage
 	 * 
 	 * Purpose: Adds a new package to GYM460.
@@ -446,28 +460,29 @@ public class Program4 {
 	 */
 	private static void addPackage(Connection dbconn) {
 		try {
-			
 			//Get package name
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter New Package Name: ");
 			String name = scanner.nextLine();
 
-			
 			// Print all active courses and add the names to a list
-			ArrayList<Integer> allCourses = new ArrayList<Integer>();
 			System.out.println("Current Active courses");
 			Statement stmt = dbconn.createStatement();
-			String query = "SELECT CourseID, Name FROM Course";
+			String query = "SELECT CourseID, Name FROM Course WHERE EndDate>TO_DATE('"+todayDate+"', 'MM/DD/YYYY')";
 			ResultSet results = stmt.executeQuery(query);
-			stmt.close();
 			
 			//Add every ID from the results to all courses
+			ArrayList<Integer> allCourses = new ArrayList<>();
+            ArrayList<String> allNames = new ArrayList<>();
 			while (results.next()) {
 				allCourses.add(results.getInt("CourseID"));
+				allNames.add(results.getString("Name"));
 			}
-			//display results
-			System.out.println(results);
-
+			stmt.close();
+			// Display active courses.
+            for (int i = 0; i < allCourses.size(); i++) {
+                System.out.println(allCourses.get(i) + " | " + allNames.get(i));
+            }
 			
 			// allow the admin to continuously add courses to the package if they exist
 			ArrayList<Integer> courses = new ArrayList<Integer>();
@@ -484,31 +499,34 @@ public class Program4 {
 					System.out.println("Sorry that course does not exist.");
 				}
 			}
-
 			
 			// Ask the admin for the price of the package
 			System.out.println("Enter the Package\'s price: ");
 			Float price = Float.parseFloat(scanner.nextLine());
-
 			
+            // Get new PackageID
+            Statement newPackID = dbconn.createStatement();
+            query = "SELECT MAX(PackageID) FROM Package";
+            ResultSet newPackIDRes = newPackID.executeQuery(query);
+            newPackIDRes.next();
+            int newID = newPackIDRes.getInt("MAX(PackageID)") + 1;
+            newPackID.close();
+
 			// Add the Package tuple
 			Statement stmt3 = dbconn.createStatement();
-			query = "insert into Package values ("+IDcounter+", "+name+", "+price+")";
-			stmt.executeQuery(query);
+			query = "insert into Package values ("+newID+", '"+name+"', "+price+")";
+			stmt3.executeQuery(query);
 			stmt3.close();
 			
 			// Add all the PackageCourses tuples using a loop
 			for (int ids : courses) {
 				Statement stmt2 = dbconn.createStatement();
-				query = "insert into PackageCourses values ("+IDcounter+", "+ids+")";
-				stmt.executeQuery(query);
+				query = "insert into PackageCourses values ("+newID+", "+ids+")";
+				stmt2.executeQuery(query);
 				stmt2.close();
 			}
-			
-			//Increment IDcounter and close the scanner
-			IDcounter++;
-			scanner.close();
 
+            System.out.println("Package created.");
 		} catch (SQLException e) {
 			System.out.println("Error in addPackage.");
 			System.out.println(e);
@@ -517,30 +535,50 @@ public class Program4 {
 
 	private static void deletePackage(Connection dbconn) {
 		try {
-			// print all the active packages
-			System.out.println("Current Active packages");
-			Statement stmt = dbconn.createStatement();
-			stmt.close();
+            // Display all packages.
+            Statement packagesStmt = dbconn.createStatement();
+            String packagesQuery = "SELECT * FROM Package";
+            ResultSet packagesRes = packagesStmt.executeQuery(packagesQuery);
+            while (packagesRes.next()) {
+                int packID = packagesRes.getInt("PackageID");
+                String packName = packagesRes.getString("Name");
+                double price = packagesRes.getFloat("Price");
+                System.out.println("PackageID: " + packID + "\t" + packName + " $" + price);
+                // Present which courses are in this package.
+				Statement whichCourses = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                String whichCoursesQuery = "SELECT Course.CourseID, Name, StartTime, StartDate, EndDate, Duration, CurrentEnrolled, MaxEnrolled, DaysOfTheWeek FROM PackageCourses, Course WHERE PackageCourses.CourseID=Course.CourseID AND PackageCourses.PackageID="+packID;
+                ResultSet whichCoursesRes = whichCourses.executeQuery(whichCoursesQuery);
+                printResults(whichCoursesRes);
+            }
+            packagesStmt.close();
 
-			// get basic package info
-			// Get basic information
+            // Ask user to select a packageID.
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter Package ID to delete a package: ");
-			String packageID = scanner.nextLine();
+            int chosenPack = Integer.valueOf(scanner.nextLine());
 
 			// Delete the package
-			Statement stmt2 = dbconn.createStatement();
-			stmt2.close();
+            Statement delPack = dbconn.createStatement();
+            String delPackQuery = "DELETE FROM Package WHERE PackageID="+chosenPack;
+            delPack.executeQuery(delPackQuery);
+            delPack.close();
 
+            // Delete tuples from PackageCourses
+            Statement delPackCour = dbconn.createStatement();
+            String delPackCourQuery = "DELETE FROM PackageCourses WHERE PackageID="+chosenPack;
+            delPackCour.executeQuery(delPackCourQuery);
+            delPackCour.close();
+
+            System.out.println("Package deleted.");
 		} catch (SQLException e) {
 			System.out.println("Error in deletePackage.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void updatePackage(Connection dbconn) {
 		try {
+            // TODO: Do this function.
 			Statement stmt = dbconn.createStatement();
 			stmt.close();
 		} catch (SQLException e) {
@@ -552,25 +590,42 @@ public class Program4 {
 
 	private static void query1(Connection dbconn) {
 		try {
-			// Get negative balance members
-			// Query: SELECT name, phone_num FROM members WHERE balance < 0;
-			Statement stmt = dbconn.createStatement();
-			String query = "SELECT name, phone_num FROM members WHERE balance < 0";
-			ResultSet results = stmt.executeQuery(query);
-			stmt.close();
+            // Get a list of members.
+            List<Integer> memberIDs = new ArrayList<>();
+            List<String> memberNames = new ArrayList<>();
+            List<String> memberPhones = new ArrayList<>();
+            Statement allMemb = dbconn.createStatement();
+            String allMembQuery = "SELECT MemberID, Name, PhoneNum FROM Member";
+            ResultSet allMembRes = allMemb.executeQuery(allMembQuery);
+            while (allMembRes.next()) {
+                memberIDs.add(allMembRes.getInt("MemberID"));
+                memberNames.add(allMembRes.getString("Name"));
+                memberPhones.add(allMembRes.getString("PhoneNum"));
+            }
 
-			// Print results
-			System.out.println(results);
-
+            // Check if each member has negative balance.
+            for (int i = 0; i < memberIDs.size(); i++) {
+                int memberID = memberIDs.get(i);
+                // we look at table Transaction for all Paid='N' with our memberID
+                Statement negativecheck = dbconn.createStatement();
+                String query = "SELECT COUNT(*) FROM Transaction WHERE MemberID = " + memberID + "AND Paid = 'N'";
+                ResultSet results = negativecheck.executeQuery(query);
+                results.next();
+                int numUnpaid = results.getInt("COUNT(*)");
+                if (numUnpaid > 0) {
+                    System.out.println(memberNames.get(i) + " | " + memberPhones.get(i));
+                }
+            }
 		} catch (SQLException e) {
 			System.out.println("Error in query1.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void query2(Connection dbconn) {
 		try {
+            // TODO: Check this function.
+
 			// Get the Member's ID that we want to check
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter the member\'s ID please: ");
@@ -599,23 +654,24 @@ public class Program4 {
 			System.out.println("Error in query2.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void query3(Connection dbconn) {
 		try {
-			// TODO
+            // TODO: Do this function.
+
 			Statement stmt = dbconn.createStatement();
 			stmt.close();
 		} catch (SQLException e) {
 			System.out.println("Error in query3.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	private static void query4(Connection dbconn) {
 		try {
+            // TODO: Do this function.
+
 			//Get the member's ID to check
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Enter the Members ID: ");
@@ -629,7 +685,6 @@ public class Program4 {
 			System.out.println("Error in query4.");
 			System.out.println(e);
 		}
-		;
 	}
 
 	/*
@@ -672,7 +727,7 @@ public class Program4 {
 			System.err.println("\tMessage:   " + e.getMessage());
 			System.err.println("\tSQLState:  " + e.getSQLState());
 			System.err.println("\tErrorCode: " + e.getErrorCode());
-			System.exit(-1);
+			exit(dbconn);
 
 		}
 
@@ -695,7 +750,8 @@ public class Program4 {
 	/***
 	 * Name: Exit Purpose: Exit the program Parameters: None
 	 */
-	private static void exit() {
+	private static void exit(Connection conn) {
+        closeConn(conn);
 		System.exit(1);
 	}
 
