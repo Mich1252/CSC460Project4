@@ -54,6 +54,10 @@ public class Program4 {
 		closeConn(dbconn);
 	}
 
+    /* Name: printMenu
+     * Purpose: prints the options menu for the user to select a operation to
+     * perform
+     */
 	private static void printMenu() {
 		System.out.println();
 		System.out.println("Available Operations:");
@@ -71,6 +75,16 @@ public class Program4 {
 		System.out.println("(l) Exit");
 	}
 
+    /* Name: takeUserInput
+     * Purpose: After printing the menu, this function asks the user for a
+     * letter/option and performs the corresponding query. If the user
+     * enters l, this function returns false to break out of the infinite
+     * loop in main.
+     * Returns: false if the user wants to exit, else true.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     *     scanner - in - scanner object to use to ask user for input.
+     */
 	private static boolean takeUserInput(Connection dbconn, Scanner scanner) {
 		System.out.print("Letter: ");
 		// wait for user input
@@ -113,13 +127,16 @@ public class Program4 {
 		return true;
 	}
 
-	/*
-	 * Name: printResults Purpose: Print the results of a query. Parameters: answer
-	 * - in - ResultSet object containing the results of a query. NOTE - any
-	 * ResultSet given MUST have a statement created using a format of: Statement
-	 * stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+    /* Name: printResults
+     * Purpose: Print the results of a query in a beautiful way.
+     * Returns: the number of rows printed.
+     * Parameters:
+     *     answer - in - ResultSet object containing the results of a query.
+     *     print - in - whether to actually print the ResultSet.
+     * Note: any ResultSet given MUST have a statement created using a format of:
+     * Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 	 * ResultSet.CONCUR_READ_ONLY);
-	 */
+     */
 	private static int printResults(ResultSet answer, boolean print) {
 		System.out.println();
 		int rows = 0;
@@ -218,15 +235,14 @@ public class Program4 {
 		return rows;
 	}
 
-	/***
-	 * Name: addMember
-	 * 
-	 * Purpose: Adds a new member to GYM460.
-	 * 
-	 * Return: None
-	 * 
-	 * @param dbconn
-	 */
+    /* Name: addMember
+     * Purpose: Add a new member to GYM 460. It will first ask for basic
+     * information (new member's full name and phone number), then it will
+     * ask the new member to select a package to purchase. Then all these changes
+     * are saved in the backend database.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void addMember(Connection dbconn) {
 		try {
 
@@ -237,7 +253,7 @@ public class Program4 {
 			System.out.print("Enter New Member\'s Phone Number (XXX-XXX-XXXX): ");
 			String phoneNum = scanner.nextLine();
 
-			// get the highest ID, and increment it by 1
+			// get the highest MemberID, and increment it by 1
 			Statement IDstmt = dbconn.createStatement();
 			String IDquery = "SELECT MAX(MemberID) FROM Member";
 			ResultSet IDresults = IDstmt.executeQuery(IDquery);
@@ -403,6 +419,15 @@ public class Program4 {
 		}
 	}
 
+    /* Name: deleteMember
+     * Purpose: Deletes a member from GYM 460 given the MemberID that the manager
+     * enters. First it will check for any unpaid transactions, and if there is,
+     * it will stop the deletion process immediately. If the member has paid all
+     * transactions, it will mark any unreturned equipment as lost, unenroll any
+     * courses he/she was in, and delete the member from the database.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void deleteMember(Connection dbconn) {
 		try {
 			// Get basic information
@@ -528,6 +553,13 @@ public class Program4 {
 		}
 	}
 
+    /* Name: addCourse
+     * Purpose: Adds a new course to GYM 460. After asking for a bunch of
+     * course information, it will create the course in the backend database
+     * and be available to include in any package.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void addCourse(Connection dbconn) {
 		try {
 			// Get basic information about the course
@@ -576,6 +608,14 @@ public class Program4 {
 		}
 	}
 
+    /* Name: deleteCourse
+     * Purpose: Completely deletes a course from GYM 460. This function will first
+     * check if the course is active and has people enrolled. If there is, it will
+     * print out a list of people to notify about the shutdown. Then it will delete
+     * the course and clean up participation/enrollement in the backend.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void deleteCourse(Connection dbconn) {
 		try {
 			// Get basic information for deletion
@@ -621,15 +661,13 @@ public class Program4 {
 		}
 	}
 
-	/**
-	 * Name: addPackage
-	 * 
-	 * Purpose: Adds a new package to GYM460.
-	 * 
-	 * Return: None
-	 * 
-	 * @param dbconn
-	 */
+    /* Name: addPackage
+     * Purpose: Creates a new package by asking the user for its name, which
+     * courses to include in it, and the price. After the package is created,
+     * it can be selected for purchase when adding a new member.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void addPackage(Connection dbconn) {
 		try {
 			// Get package name
@@ -705,6 +743,12 @@ public class Program4 {
 		}
 	}
 
+    /* Name: deletePackage
+     * Purpose: Deletes a package from GYM 460 in a way that doesn't affect
+     * old members who purchased the package already.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void deletePackage(Connection dbconn) {
 		try {
 			// Display all packages.
@@ -750,6 +794,13 @@ public class Program4 {
 		}
 	}
 
+    /* Name: updatePackage
+     * Purpose: Updates a package from GYM 460. It asks the user whether to
+     * add a course, remove a course, or change the price of a package. Then
+     * it will perform the operation and make changes to the database.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void updatePackage(Connection dbconn) {
 		try {
 			Statement stmt = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -857,9 +908,14 @@ public class Program4 {
 			System.out.println("Error in updatePackage.");
 			System.out.println(e);
 		}
-		;
 	}
 
+    /* Name: query1
+     * Purpose: Answers the first query: List all members’ names and phone numbers
+     * who now have a negative balance (have fees that are not paid off)
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void query1(Connection dbconn) {
 		try {
 			// Get a list of members.
@@ -894,6 +950,12 @@ public class Program4 {
 		}
 	}
 
+    /* Name: query2
+     * Purpose: Answers the second query: Check and see a member’s class schedule
+     * for November.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void query2(Connection dbconn) {
 		try {
 
@@ -934,6 +996,12 @@ public class Program4 {
 		}
 	}
 
+    /* Name: query3
+     * Purpose: Answers the third query: Check and see all trainers’ working
+     * hours for December.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void query3(Connection dbconn) {
 		try {
 
@@ -1004,6 +1072,12 @@ public class Program4 {
 		}
 	}
 
+    /* Name: query4
+     * Purpose: Answers the fourth query: List the names and numbers of all
+     * trainers that teach a specific member.
+     * Parameters:
+     *     dbconn - in - database connection object.
+     */
 	private static void query4(Connection dbconn) {
 		try {
 			// Get the member's ID to check
@@ -1037,10 +1111,12 @@ public class Program4 {
 		}
 	}
 
-	/*
-	 * Name: estabConn Purpose: Establish a connection with the database using JDBC.
-	 * Returns: Connection object for communication with the database.
-	 */
+    /* Name: estabConn
+     * Purpose: Establish a connection with the database using JDBC.
+     * It will use my login credentials because that is where GYM 460 database
+     * is stored.
+     * Returns: Connection object for communication with the database.
+     */
 	private static Connection estabConn() {
 		final String oracleURL = // Magic lectura -> aloe access spell
 				"jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
@@ -1085,10 +1161,11 @@ public class Program4 {
 
 	}
 
-	/*
-	 * Name: closeConn Purpose: Closes the connection to the database. Parameters:
-	 * conn - in - Connection object to the database to close.
-	 */
+    /* Name: closeConn
+     * Purpose: Closes the connection to the database.
+     * Parameters:
+     *     conn - in - Connection object to the database to close.
+     */
 	private static void closeConn(Connection conn) {
 		try {
 			conn.close();
@@ -1097,8 +1174,10 @@ public class Program4 {
 		}
 	}
 
-	/***
-	 * Name: Exit Purpose: Exit the program Parameters: None
+	/* Name: exit
+     * Purpose: Exit the program
+     * Parameters:
+     *     conn - in - Connection object to the database to close.
 	 */
 	private static void exit(Connection conn) {
 		closeConn(conn);
