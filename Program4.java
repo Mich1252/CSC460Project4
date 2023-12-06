@@ -24,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -961,7 +960,7 @@ public class Program4 {
 			// AND EXTRACT(MONTH FROM C.EndDate) >= 11);
 			// Pull the member's schedule information for November
 			Statement stmt = dbconn.createStatement();
-			String query = "SELECT C.Name AS CourseName, C.StartDate AS CourseStartDate, C.EndDate AS CourseEndDate, C.DaysOfTheWeek "
+			String query = "SELECT C.Name AS CourseName, C.StartDate AS CourseStartDate, C.EndDate AS CourseEndDate, C.StartTime AS CourseTime, C.DaysOfTheWeek "
 					+ "FROM Member M JOIN MemberCourse MC ON M.MemberID = MC.MemberID JOIN Course C ON MC.CourseID = C.CourseID "
 					+ "WHERE M.MemberID = " + memberID
 					+ " AND (EXTRACT(MONTH FROM C.StartDate) <= 11 AND EXTRACT(MONTH FROM C.EndDate) >= 11)";
@@ -970,12 +969,13 @@ public class Program4 {
 			// Display results
 			System.out.println("===============================================================");
 			System.out.println("SCHEDULE");
-			System.out.println("===============================================================");
-			System.out.println("CourseName -- CourseStartDate -- CourseEndDate -- DaysOfTheWeek");
-			System.out.println("===============================================================");
+			System.out.println("=============================================================================");
+			System.out.println("CourseName -- CourseStartDate -- CourseEndDate -- CourseTime -- DaysOfTheWeek");
+			System.out.println("=============================================================================");
 			while (results.next()) {
 				System.out.println(results.getString("CourseName") + " -- " + results.getString("CourseStartDate")
-						+ " -- " + results.getString("CourseEndDate") + " -- " + results.getString("DaysOfTheWeek"));
+						+ " -- " + results.getString("CourseEndDate") + " -- " + results.getString("CourseTime")
+						+ " -- " + results.getString("DaysOfTheWeek"));
 			}
 
 		} catch (SQLException e) {
@@ -1020,8 +1020,6 @@ public class Program4 {
 				// Format end time with leading zeros if needed
 				String endTime = String.format("%02d%02d", endTimeHours, endTimeMinutesRemaining);
 
-				
-				
 				Date startDate = results.getDate("StartDate");
 				Date endDate = results.getDate("EndDate");
 				// Java.sql.Date has a ton of Deprecated methods for getting the day, month and
@@ -1042,14 +1040,14 @@ public class Program4 {
 					temp = startYear + "-12-01 TO " + startYear + "-12-31 FROM " + startTime + " TO " + endTime
 							+ " ON DAYS " + results.getString("DaysOfTheWeek");
 				} else if (startMonth < 12 && endMonth == 12) {
-					temp = startYear + "-12-01 TO " + endDate + " FROM " + startTime + " TO " + endTime
-							+ " ON DAYS " + results.getString("DaysOfTheWeek");
+					temp = startYear + "-12-01 TO " + endDate + " FROM " + startTime + " TO " + endTime + " ON DAYS "
+							+ results.getString("DaysOfTheWeek");
 				} else if (startMonth == 12 && endMonth < 12) {
-					temp = startDate + " TO " + startYear + "-12-31 FROM " + startTime + " TO " + endTime
-							+ " ON DAYS " + results.getString("DaysOfTheWeek");
+					temp = startDate + " TO " + startYear + "-12-31 FROM " + startTime + " TO " + endTime + " ON DAYS "
+							+ results.getString("DaysOfTheWeek");
 				} else if (startMonth == 12 && endMonth == 12) {
-					temp = startDate + " TO " + endDate + " FROM " + startTime + " TO " + endTime
-							+ " ON DAYS " + results.getString("DaysOfTheWeek");
+					temp = startDate + " TO " + endDate + " FROM " + startTime + " TO " + endTime + " ON DAYS "
+							+ results.getString("DaysOfTheWeek");
 				}
 
 				// put into map
