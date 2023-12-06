@@ -279,12 +279,25 @@ public class Program4 {
 					continue;
 				}
 
+                // If package has no active courses, don't display package
+                Statement emptyPack = dbconn.createStatement();
+				String emptyPackQuery = "SELECT COUNT(*) FROM PackageCourses, Course WHERE PackageCourses.CourseID=Course.CourseID AND PackageCourses.PackageID="
+						+ packID + " AND EndDate>TO_DATE('" + todayDate + "', 'MM/DD/YYYY')";
+                ResultSet emptyPackRes = emptyPack.executeQuery(emptyPackQuery);
+                emptyPackRes.next();
+                if (emptyPackRes.getInt("COUNT(*)") == 0) {
+                    // Zero active courses, don't display this package
+                    emptyPack.close();
+                    continue;
+                }
+                emptyPack.close();
+
 				System.out.println("PackageID: " + packID + "\t" + packName + " $" + price);
-				// Look for courses that are full.
+				// Display courses in package
 				Statement whichCourses = dbconn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 						ResultSet.CONCUR_READ_ONLY);
 				String whichCoursesQuery = "SELECT Course.CourseID, Name, StartTime, StartDate, EndDate, Duration, CurrentEnrolled, MaxEnrolled, DaysOfTheWeek FROM PackageCourses, Course WHERE PackageCourses.CourseID=Course.CourseID AND PackageCourses.PackageID="
-						+ packID;
+						+ packID + " AND EndDate>TO_DATE('" + todayDate + "', 'MM/DD/YYYY')";
 				ResultSet whichCoursesRes = whichCourses.executeQuery(whichCoursesQuery);
 				printResults(whichCoursesRes, true);
 			}
