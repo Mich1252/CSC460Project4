@@ -1,2 +1,13 @@
 # CSC460Project4
-This is the repository for the course CSC460's 4th project. It should retain files for a java program as well as documentation files.
+# Michael Beccarelli JhihYang Wu Quanwei Lei
+
+Credit: 
+
+
+
+**EXECUTION**
+First use : "export CLASSPATH=/usr/lib/oracle/19.8/client64/lib/ojdbc8.jar:${CLASSPATH}"
+
+Options are displayed on screen for corresponding commands:
+![image](https://github.com/Mich1252/CSC460Project4/assets/108092123/1df0d40b-2ef6-4d00-8b33-5789507db6d6)
+
