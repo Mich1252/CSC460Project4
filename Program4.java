@@ -279,18 +279,18 @@ public class Program4 {
 					continue;
 				}
 
-                // If package has no active courses, don't display package
-                Statement emptyPack = dbconn.createStatement();
+				// If package has no active courses, don't display package
+				Statement emptyPack = dbconn.createStatement();
 				String emptyPackQuery = "SELECT COUNT(*) FROM PackageCourses, Course WHERE PackageCourses.CourseID=Course.CourseID AND PackageCourses.PackageID="
 						+ packID + " AND EndDate>TO_DATE('" + todayDate + "', 'MM/DD/YYYY')";
-                ResultSet emptyPackRes = emptyPack.executeQuery(emptyPackQuery);
-                emptyPackRes.next();
-                if (emptyPackRes.getInt("COUNT(*)") == 0) {
-                    // Zero active courses, don't display this package
-                    emptyPack.close();
-                    continue;
-                }
-                emptyPack.close();
+				ResultSet emptyPackRes = emptyPack.executeQuery(emptyPackQuery);
+				emptyPackRes.next();
+				if (emptyPackRes.getInt("COUNT(*)") == 0) {
+					// Zero active courses, don't display this package
+					emptyPack.close();
+					continue;
+				}
+				emptyPack.close();
 
 				System.out.println("PackageID: " + packID + "\t" + packName + " $" + price);
 				// Display courses in package
@@ -335,64 +335,68 @@ public class Program4 {
 				enrollcourse.executeQuery(query);
 				enrollcourse.close();
 
-                // increase CurrentEnrolled for courses this new member signed up for
-                enrollcourse = dbconn.createStatement();
-                query = "UPDATE Course SET CurrentEnrolled = CurrentEnrolled + 1 WHERE CourseID = " + courseIDs[j];
-                enrollcourse.executeQuery(query);
-                enrollcourse.close();
+				// increase CurrentEnrolled for courses this new member signed up for
+				enrollcourse = dbconn.createStatement();
+				query = "UPDATE Course SET CurrentEnrolled = CurrentEnrolled + 1 WHERE CourseID = " + courseIDs[j];
+				enrollcourse.executeQuery(query);
+				enrollcourse.close();
 			}
 
-            // Depending on what membership type they have, increase the amount spent accordingly.
-            //     Get discount
-            Statement discount = dbconn.createStatement();
-            String discountQuery = "SELECT Discount, AmountSpent FROM Member, MembershipInfo WHERE Member.MembershipTypeID=MembershipInfo.MembershipTypeID AND MemberID=" + newMemberID;
-            ResultSet discountRes = discount.executeQuery(discountQuery);
-            discountRes.next();
-            int discountRate = discountRes.getInt("Discount");
-            float oldAmountSpent = discountRes.getFloat("AmountSpent");
-            float percentPay = (100 - discountRate) / 100;
-            discount.close();
-            //     Get price
-            Statement price = dbconn.createStatement();
-            query = "SELECT Price FROM Package WHERE PackageID="+chosenPack;
-            ResultSet priceRes = price.executeQuery(query);
-            priceRes.next();
-            float pricePack = priceRes.getFloat("Price");
-            price.close();
-            //     Update AmountSpent
-            float amountSpent = percentPay * pricePack; // How much member is paying for this package
-            float newAmountSpent = oldAmountSpent + amountSpent; // New amount spent of the member
-            Statement newAmtStmt = dbconn.createStatement();
-            query = "UPDATE Member SET AmountSpent = " + newAmountSpent + " WHERE MemberID=" + newMemberID;
-            newAmtStmt.executeQuery(query);
-            newAmtStmt.close();
-            
-            // Create transaction tuple for this new course purchase
-            //     get new TransactionID
-            Statement nextTransID = dbconn.createStatement();
-            query = "SELECT MAX(TransactionID) FROM Transaction";
-            ResultSet nextTransIDRes = nextTransID.executeQuery(query);
-            nextTransIDRes.next();
-            int newTranID = nextTransIDRes.getInt("MAX(TransactionID)") + 1;
-            //     insert new Transaction tuple
-            Statement newTrans = dbconn.createStatement();
-            query = "insert into Transaction values ("+newTranID+", "+newMemberID+", "+amountSpent+", TO_DATE('"+todayDate+"', 'MM/DD/YYYY'), 'Purchase', 'N')";
-            newTrans.executeQuery(query);
-            newTrans.close();
+			// Depending on what membership type they have, increase the amount spent
+			// accordingly.
+			// Get discount
+			Statement discount = dbconn.createStatement();
+			String discountQuery = "SELECT Discount, AmountSpent FROM Member, MembershipInfo WHERE Member.MembershipTypeID=MembershipInfo.MembershipTypeID AND MemberID="
+					+ newMemberID;
+			ResultSet discountRes = discount.executeQuery(discountQuery);
+			discountRes.next();
+			int discountRate = discountRes.getInt("Discount");
+			float oldAmountSpent = discountRes.getFloat("AmountSpent");
+			float percentPay = (100 - discountRate) / 100;
+			discount.close();
+			// Get price
+			Statement price = dbconn.createStatement();
+			query = "SELECT Price FROM Package WHERE PackageID=" + chosenPack;
+			ResultSet priceRes = price.executeQuery(query);
+			priceRes.next();
+			float pricePack = priceRes.getFloat("Price");
+			price.close();
+			// Update AmountSpent
+			float amountSpent = percentPay * pricePack; // How much member is paying for this package
+			float newAmountSpent = oldAmountSpent + amountSpent; // New amount spent of the member
+			Statement newAmtStmt = dbconn.createStatement();
+			query = "UPDATE Member SET AmountSpent = " + newAmountSpent + " WHERE MemberID=" + newMemberID;
+			newAmtStmt.executeQuery(query);
+			newAmtStmt.close();
 
-            // Update member's membership type depending on newAmountSpent
-            //     Get correct membership type
-            Statement newMemType = dbconn.createStatement();
-            query = "SELECT MembershipTypeID FROM MembershipInfo WHERE "+newAmountSpent+">MinSpend ORDER BY MinSpend DESC";
-            ResultSet newMemTypeRes = newMemType.executeQuery(query);
-            newMemTypeRes.next();
-            int newMemTypeID = newMemTypeRes.getInt("MembershipTypeID");
-            newMemType.close();
-            //     Save potentially new membership type
-            newMemType = dbconn.createStatement();
-            query = "UPDATE Member SET MembershipTypeID = " + newMemTypeID + " WHERE MemberID = " + newMemberID;
-            newMemType.executeQuery(query);
-            newMemType.close();
+			// Create transaction tuple for this new course purchase
+			// get new TransactionID
+			Statement nextTransID = dbconn.createStatement();
+			query = "SELECT MAX(TransactionID) FROM Transaction";
+			ResultSet nextTransIDRes = nextTransID.executeQuery(query);
+			nextTransIDRes.next();
+			int newTranID = nextTransIDRes.getInt("MAX(TransactionID)") + 1;
+			// insert new Transaction tuple
+			Statement newTrans = dbconn.createStatement();
+			query = "insert into Transaction values (" + newTranID + ", " + newMemberID + ", " + amountSpent
+					+ ", TO_DATE('" + todayDate + "', 'MM/DD/YYYY'), 'Purchase', 'N')";
+			newTrans.executeQuery(query);
+			newTrans.close();
+
+			// Update member's membership type depending on newAmountSpent
+			// Get correct membership type
+			Statement newMemType = dbconn.createStatement();
+			query = "SELECT MembershipTypeID FROM MembershipInfo WHERE " + newAmountSpent
+					+ ">MinSpend ORDER BY MinSpend DESC";
+			ResultSet newMemTypeRes = newMemType.executeQuery(query);
+			newMemTypeRes.next();
+			int newMemTypeID = newMemTypeRes.getInt("MembershipTypeID");
+			newMemType.close();
+			// Save potentially new membership type
+			newMemType = dbconn.createStatement();
+			query = "UPDATE Member SET MembershipTypeID = " + newMemTypeID + " WHERE MemberID = " + newMemberID;
+			newMemType.executeQuery(query);
+			newMemType.close();
 		} catch (SQLException e) {
 			System.out.println("Error in addMember.");
 			System.out.println(e);
