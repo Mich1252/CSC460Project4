@@ -897,16 +897,12 @@ public class Program4 {
 				float hours = 0;
 
 				if (startMonth < 12 && endMonth < 12) {
-					System.out.println("here1");
 					hours = (float) (duration * daysAWeek * 4) / 60;
 				} else if (startMonth < 12 && endMonth == 12) {
-					System.out.println("here2");
 					hours = (float) ((endDay / 4) * daysAWeek * duration) / 60;
 				} else if (startMonth == 12 && endMonth < 12) {
-					System.out.println("here3");
 					hours = (float) (((31 - startDay) / 4) * daysAWeek * duration) / 60;
 				} else if (startMonth == 12 && endMonth == 12) {
-					System.out.println("here4");
 					hours = (float) (((endDay - startDay) / 4) * daysAWeek * duration) / 60;
 				}
 
