@@ -1,3 +1,23 @@
+# Author: Michael Beccarelli, Quanwei Lei, JhihYang Wu
+# Course: CSC 460
+# Assignment: Program 4
+# Instructor: Dr. McCann
+# TAs: Zhenyu Qi, Danial Bazmandeh
+# Due date: 2023-12-05
+# 
+# 
+# 
+# Python version: 3.8.10
+# 
+# To run the program:
+# "python3 init_relations.py"
+# 
+# This script is just for setting up the backend/database for Program 4.
+# It first deletes the tables if they are already created, then it will
+# create the tables and fill them with some initial data.
+# This script works by writing all the Oracle SQL commands in a text file and
+# then starts up the InitRelations.java to actually execute those commands.
+
 import os
 
 USERNAME = "jhihyangwu"
